@@ -1,7 +1,17 @@
-FROM rust:1.85-alpine3.20 as builder
+FROM rust:1.85-alpine3.20
+
 WORKDIR /app
-RUN apk add ca-certificates
-RUN cargo build --release
-RUN echo "while true cargo watch -x run; sleep 1; end" > script.sh
-RUN chmod +x script.sh
-ENTRYPOINT ["/script.sh"]
+
+RUN apk add --no-cache musl-dev gcc g++ make && \
+    cargo install cargo-watch
+
+COPY Cargo.toml Cargo.lock ./
+
+RUN mkdir -p ./src && \
+    echo "fn main() {}" > ./src/main.rs && \
+    cargo build --release && \
+    rm -rf ./src
+
+COPY . .
+
+CMD ["cargo", "watch", "-x", "run"]

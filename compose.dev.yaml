@@ -1,34 +1,40 @@
 services:
-  frontend:
-    container_name: frontend
+  frontend-dev:
+    container_name: frontend-dev
     build:
       context: ./frontend
+      dockerfile: Dockerfile.dev
+    ports:
+      - 5173:5173
     volumes:
       - ./frontend/src:/app/src
       - ./frontend/public:/app/public
     networks:
       - internal
     depends_on:
-      - mysql
-      - backend
+      - mysql-dev
+      - backend-dev
 
-  proxy:
-    container_name: proxy
+  proxy-dev:
+    container_name: proxy-dev
     image: caddy:alpine
     command: ["caddy", "run", "--config", "/etc/Caddyfile", "--watch"]
     ports:
       - 80:80
     volumes:
-      - ./Caddyfile:/etc/Caddyfile
+      - ./Caddyfile.dev:/etc/Caddyfile
     networks:
       - internal
 
-  backend:
-    container_name: backend
+  backend-dev:
+    container_name: backend-dev
     build:
       context: ./backend
+      dockerfile: Dockerfile.dev
     ports:
       - "3000:3000"
+    volumes:
+      - ./backend:/app
     environment:
       - DATABASE_HOST=mysql
       - DATABASE_USER=root
@@ -37,10 +43,10 @@ services:
     networks:
       - internal
     depends_on:
-      - mysql
+      - mysql-dev
 
-  mysql:
-    container_name: mysql
+  mysql-dev:
+    container_name: mysql-dev
     image: mysql:8
     environment:
       MYSQL_ROOT_PASSWORD: 12345

@@ -1,4 +1,4 @@
-http://localhost {
+http://* {
     handle /api/* {
         reverse_proxy project-backend:3000
     }

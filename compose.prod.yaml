@@ -1,44 +1,64 @@
+version: "3.8"
+
 services:
-  project-proxy:
-    container_name: project-proxy
+  frontend:
+    container_name: frontend-dev
     build:
-      context: .
-      dockerfile: frontend/Dockerfile
-    ports:
-      - 80:80
-      - 443:443
+      context: ./frontend
+      dockerfile: Dockerfile.dev
     volumes:
-      - ./data/caddy:/data/caddy
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    networks:
+      - internal
+    environment:
+      - NODE_ENV=development
+
+  proxy:
+    container_name: proxy-dev
+    image: caddy:alpine
+    command: ["caddy", "run", "--config", "/etc/Caddyfile", "--watch"]
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile.dev:/etc/Caddyfile
     networks:
       - internal
     depends_on:
-      - project-backend
+      - frontend
+      - backend
 
-  project-backend:
-    container_name: project-backend
+  backend:
+    container_name: backend-dev
     build:
       context: ./backend
-      dockerfile: Dockerfile.prod
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/app
     environment:
-      - DATABASE_HOST=project-mysql
+      - DATABASE_HOST=mysql
       - DATABASE_USER=root
       - DATABASE_PASSWORD=12345
       - DATABASE_NAME=database
+      - RUST_BACKTRACE=1
     networks:
       - internal
     depends_on:
-      - project-mysql
+      - mysql
 
-  project-mysql:
-    container_name: project-mysql
+  mysql:
+    container_name: mysql-dev
     image: mysql:8
     environment:
       MYSQL_ROOT_PASSWORD: 12345
       MYSQL_DATABASE: database
-      MYSQL_USER: user
+      MYSQL_USER: dev
       MYSQL_PASSWORD: 12345
+    ports:
+      - "3306:3306"
     volumes:
-      - mysql-data:/var/lib/mysql
+      - mysql-dev-data:/var/lib/mysql
     networks:
       - internal
 
@@ -47,5 +67,5 @@ networks:
     driver: bridge
 
 volumes:
-  mysql-data:
+  mysql-dev-data:
     driver: local
