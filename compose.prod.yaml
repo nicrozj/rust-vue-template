@@ -1,8 +1,8 @@
 version: "3.8"
 
 services:
-  frontend:
-    container_name: frontend-dev
+  frontend-prod:
+    container_name: frontend-prod
     build:
       context: ./frontend
       dockerfile: Dockerfile.dev
@@ -12,11 +12,9 @@ services:
       - "5173:5173"
     networks:
       - internal
-    environment:
-      - NODE_ENV=development
 
-  proxy:
-    container_name: proxy-dev
+  proxy-prod:
+    container_name: proxy-prod
     image: caddy:alpine
     command: ["caddy", "run", "--config", "/etc/Caddyfile", "--watch"]
     ports:
@@ -26,11 +24,11 @@ services:
     networks:
       - internal
     depends_on:
-      - frontend
-      - backend
+      - frontend-prod
+      - backend-prod
 
-  backend:
-    container_name: backend-dev
+  backend-prod:
+    container_name: backend-prod
     build:
       context: ./backend
       dockerfile: Dockerfile.dev
@@ -45,10 +43,10 @@ services:
     networks:
       - internal
     depends_on:
-      - mysql
+      - mysql-prod
 
-  mysql:
-    container_name: mysql-dev
+  mysql-prod:
+    container_name: mysql-prod
     image: mysql:8
     environment:
       MYSQL_ROOT_PASSWORD: 12345
@@ -57,15 +55,9 @@ services:
       MYSQL_PASSWORD: 12345
     ports:
       - "3306:3306"
-    volumes:
-      - mysql-dev-data:/var/lib/mysql
     networks:
       - internal
 
 networks:
   internal:
     driver: bridge
-
-volumes:
-  mysql-dev-data:
-    driver: local
