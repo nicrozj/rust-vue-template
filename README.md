@@ -39,22 +39,14 @@
 
 ## 🚀 Быстрый старт
 
-### Предварительные требования
-- Docker >= 20.10
-- Docker Compose >= 2.0
-- Node.js >= 18 (опционально)
-
 ```bash
 # 1. Клонировать репозиторий
-git clone https://github.com/yourusername/rust-vue-template.git
+git clone https://github.com/yourusername/axum-vue-caddy.git
 cd rust-vue-template
 
-# 2. Создать файл окружения
-cp .env.example .env
-
-# 3. Запустить в режиме разработки
-docker-compose -f docker-compose.dev.yaml up --build
-
+# 2. Запустить в режиме разработки
+docker-compose -f compose.dev.yaml up --build
+```
 # Откройте в браузере
 🌐 Frontend: http://localhost
-🔌 API: http://localhost/api
+🔌 API: http://localhost/api/
