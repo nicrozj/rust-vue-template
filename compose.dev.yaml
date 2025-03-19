@@ -1,0 +1,61 @@
+services:
+  frontend:
+    container_name: frontend
+    build:
+      context: ./frontend
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+    networks:
+      - internal
+    depends_on:
+      - mysql
+      - backend
+
+  proxy:
+    container_name: proxy
+    image: caddy:alpine
+    command: ["caddy", "run", "--config", "/etc/Caddyfile", "--watch"]
+    ports:
+      - 80:80
+    volumes:
+      - ./Caddyfile:/etc/Caddyfile
+    networks:
+      - internal
+
+  backend:
+    container_name: backend
+    build:
+      context: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_HOST=mysql
+      - DATABASE_USER=root
+      - DATABASE_PASSWORD=12345
+      - DATABASE_NAME=database
+    networks:
+      - internal
+    depends_on:
+      - mysql
+
+  mysql:
+    container_name: mysql
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: 12345
+      MYSQL_DATABASE: mysql
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - internal
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  mysql-data:
+    driver: local

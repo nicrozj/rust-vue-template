@@ -1,0 +1,7 @@
+FROM rust:1.85-alpine3.20 as builder
+WORKDIR /app
+RUN apk add ca-certificates
+RUN cargo build --release
+RUN echo "while true cargo watch -x run; sleep 1; end" > script.sh
+RUN chmod +x script.sh
+ENTRYPOINT ["/script.sh"]
