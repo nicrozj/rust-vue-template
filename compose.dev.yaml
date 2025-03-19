@@ -36,10 +36,10 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - DATABASE_HOST=mysql
-      - DATABASE_USER=root
-      - DATABASE_PASSWORD=12345
-      - DATABASE_NAME=database
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
     networks:
       - internal
     depends_on:
@@ -49,8 +49,10 @@ services:
     container_name: mysql-dev
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: 12345
-      MYSQL_DATABASE: mysql
+      - DATABASE_HOST=${DATABASE_HOST}
+      - DATABASE_USER=${DATABASE_USER}
+      - DATABASE_PASSWORD=${DATABASE_PASSWORD}
+      - DATABASE_NAME=${DATABASE_NAME}
     ports:
       - "3306:3306"
     volumes:
